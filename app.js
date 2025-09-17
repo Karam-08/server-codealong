@@ -177,12 +177,16 @@ app.put('/students/:id', async (req, res) =>{
         if(year !== undefined){students[idx].year = year;}
 
         await writeDB(students);
-        res.status(200).json(newStudent)
+        res.status(200).json(students[idx])
     }catch(err){
         console.error(err)
         res.status(500).json({error: "Server cannot update student."})
     }
 })
+
+/** 
+ * 
+ */
 
 // Start Server
 app.listen(PORT, () =>{
