@@ -180,7 +180,7 @@ app.put('/students/:id', async (req, res) =>{
         res.status(200).json(students[idx])
     }catch(err){
         console.error(err)
-        res.status(500).json({error: "Server cannot update student."})
+        res.status(500).json({error: "Server failed to update student."})
     }
 })
 
