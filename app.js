@@ -29,7 +29,7 @@ const app = express()
 const PORT = 5000
 
 // Path the students.json file
-const database = path.join(__dirname, 'Students.json')
+const database = path.join(__dirname, 'students.json')
 
 // Middleware
 // Part 1: Parse JSON request body when the client sends Content-Type: application.json
@@ -96,14 +96,93 @@ app.get('/students', async (req, res) =>{
     }
 })
 
+/**
+ * GET /students/:id
+ * Purpose: Read a single student id
+ * METHOD: GET
+ * URL PARAM: id
+ * RESPONSE: 200 ok + JSON object or 404
+*/
 
+app.get('/students/:id', async (req, res) =>{ // the ":" is parameter and "id" is the name of the parameter
+    try{
+        const students = await readDB()
+        const student = students.find(s => s.id == req.params.id)
+        if(!student){
+            return res.status(404).json({error: "Student not found"})
+        }
+        res.status(200).json(student)
+    }catch(err){
+        console.error(err)
+        res.status(500).json({error: "Server failed to read students"})
+    }
+})
 
+/** 
+ * POST /students
+ * Purpose: Create a new students(add to the file)
+ * METHOD: POST(create a new resource)
+ * URL: /students
+ * REQUEST HEADERS: Content-Type: application/json
+ * REQUEST BODY: JSON with required fields for(id, firstName, lastName, year)
+ * RESPONSE: 201 Created + JSON of created student
+ */
 
+app.post("/students", async (req, res) =>{
+    try{
+        let {id, firstName, lastName, year} = req.body;
 
+        if(!id || !firstName || !lastName || typeof year !== "number"){
+            return res.status(400).json({
+                error: "Invalid Body. Required: ID, firstName, lastName, year (number)."
+            });
+        }
 
+        const students = await readDB();
+        if(students.some(s => s.id === id)){
+            return res.status(409).json({error: "ID already exists."})
+        }
 
+        const newStudent = {id, firstName, lastName, year};
+        students.push(newStudent);
+        await writeDB(students);
 
+        res.status(201).json(newStudent);
+    }catch(err){
+        console.error(err);
+        res.status(500).json({error: "Server cannot add student"});
+    }
+})
 
+/**
+ * PUT students/:id
+ * Purpose: Update an existing student by id (replace fields)
+ * METHOD: PUT (idempotent - multiple identical requests result in same state)
+ * URL: /students/:id
+ * REQUEST BODY: JSON with fields to update (firstName, lastName, year)
+ * RESPONSE OK + JSON of updated student, or Not Found
+ */
+app.put('/students/:id', async (req, res) =>{
+    try{
+        const {firstName, lastName, year} = req.body
+        const students = await readDB();
+        const idx = students.findIndex(s => s.id == req.params.id)
+
+        if(idx === -1){
+            return res.status(404).json({error: "Student not found."})
+        }
+
+        if(firstName !== undefined){students[idx].firstName = firstName;}
+        if(lastName !== undefined){students[idx].lastName = lastName;}
+        if(year !== undefined){students[idx].year = year;}
+
+        await writeDB(students);
+        res.status(200).json(newStudent)
+    }catch(err){
+        console.error(err)
+        res.status(500).json({error: "Server cannot update student."})
+    }
+})
 
 // Start Server
 app.listen(PORT, () =>{
