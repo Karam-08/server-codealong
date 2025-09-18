@@ -185,8 +185,33 @@ app.put('/students/:id', async (req, res) =>{
 })
 
 /** 
- * 
+ * DELETE /students:/id
+ * Purpose: Delete an existing student ID
+ * METHOD: DELETE
+ * URL: /students
+ * REQUEST HEADERS: Content-Type: application/json
+ * REQUEST BODY: JSON with required fields for(id, firstName, lastName, year)
+ * RESPONSE: 200 OK with deleted student, or 404 if not found
  */
+
+app.delete('/students/:id', async (req, res) =>{
+    try{
+        const students = await readDB()
+        const idx = students.findIndex(s => s.id == req.params.id)
+
+        if(idx === -1){
+            return res.status(404).json({error: "Student not found."})
+        }
+
+        const deletedStudent = students.splice(idx, 1)[0];
+        await writeDB(students)
+        
+        res.status(200).json(deletedStudent)
+    }catch(err){
+        console.error(err)
+        res.status(500).json({error: "Server failed to delete student."})
+    }
+})
 
 // Start Server
 app.listen(PORT, () =>{
