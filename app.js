@@ -218,7 +218,7 @@ app.delete('/students/:id', async (req, res) =>{
  */
 
 app.use((req, res, next) =>{
-    res.status(404).send("Sorry, the page you are looking for cannot be found.")
+    res.status(404).send({error: "Sorry, the page you are looking for cannot be found."})
 })
 
 // Start Server
