@@ -196,13 +196,13 @@ app.put('/students/:id', async (req, res) =>{
 app.delete('/students/:id', async (req, res) =>{
     try{
         const students = await readDB()
-        const idx = students.findIndex(s => s.id == req.params.id)
+        const idx = students.findIndex(s => s.id == req.params.id) // Finds student
 
-        if(idx === -1){
+        if(idx === -1){ // If not found
             return res.status(404).json({error: "Student not found."})
         }
 
-        const deletedStudent = students.splice(idx, 1)[0];
+        const deletedStudent = students.splice(idx, 1)[0]; // Deletes student
         await writeDB(students)
         
         res.status(200).json(deletedStudent)
