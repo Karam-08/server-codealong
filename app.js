@@ -24,7 +24,6 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 const morgan = require('morgan');
-
 const app = express()
 const PORT = 5000
 
@@ -211,6 +210,15 @@ app.delete('/students/:id', async (req, res) =>{
         console.error(err)
         res.status(500).json({error: "Server failed to delete student."})
     }
+})
+
+/**
+ * 404 Handler
+ * Self Explanatory
+ */
+
+app.use((req, res, next) =>{
+    res.status(404).send("Sorry, the page you are looking for cannot be found.")
 })
 
 // Start Server
